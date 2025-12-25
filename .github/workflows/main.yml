@@ -1,0 +1,36 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main" ] # هر زمان که روی شاخه اصلی کد بفرستید، اجرا می‌شود
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # یک سرور لینوکس برای شما روشن می‌کند
+
+    steps:
+      - uses: actions/checkout@v4 # کدهای شما را برمی‌دارد
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install Dependencies
+        run: npm install # پکیج‌های لازم را نصب می‌کند
+
+      - name: Build Web Assets
+        run: npm run build # پوشه dist را می‌سازد
+
+      - name: Build with Gradle
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug # فایل APK را می‌سازد
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-app-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk # فایل را برای دانلود آماده می‌کند
